@@ -1,77 +1,383 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f6f1">
-  <title>Relay — Real-time chat</title>
+
+  <title>Relay — Real-Time Chat</title>
+
   <link rel="stylesheet" href="/style.css">
+
+  <!-- Ensure hidden elements stay hidden -->
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    .login-overlay[hidden] {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    .login-card input:focus {
+      outline: 2px solid #20564b;
+      outline-offset: 2px;
+    }
+
+    .login-card button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+
   <script src="/app.js" defer></script>
 </head>
+
 <body>
+  <!-- Welcome Screen -->
   <div class="login-overlay" id="login-overlay">
     <div class="login-card">
-      <div class="brand"><span class="brand-mark">↗</span> relay<span class="brand-dot">.</span></div>
+      <div class="brand">
+        <span class="brand-mark">↗</span>
+        relay<span class="brand-dot">.</span>
+      </div>
+
       <p class="eyebrow">BETTER TOGETHER, IN REAL TIME</p>
+
       <h1>Good ideas travel <em>faster.</em></h1>
-      <p class="muted">Choose a display name to enter your shared chat workspace.</p>
+
+      <p class="muted">
+        Choose a display name to enter your shared chat workspace.
+      </p>
+
       <form id="join-form">
         <label for="display-name">DISPLAY NAME</label>
-        <input id="display-name" maxlength="24" placeholder="e.g. Yaswant" required autocomplete="nickname">
-        <button class="primary" type="submit">Enter workspace <span>↗</span></button>
+
+        <input
+          id="display-name"
+          name="displayName"
+          type="text"
+          maxlength="24"
+          placeholder="e.g. Yaswant"
+          autocomplete="nickname"
+          required
+        >
+
+        <button class="primary" id="join-button" type="submit">
+          Enter workspace <span>↗</span>
+        </button>
+
+        <p
+          id="join-error"
+          role="alert"
+          aria-live="polite"
+          style="display:none; color:#b42318; font-size:13px;"
+        ></p>
       </form>
-      <small>No account needed for this local demo. Anyone on this app can see room messages.</small>
+
+      <small>
+        No account needed for this local demo.
+        Anyone using this app can see room messages.
+      </small>
     </div>
   </div>
 
+  <!-- Main Chat Application -->
   <div class="app-frame">
+
+    <!-- Left Sidebar -->
     <aside class="sidebar">
-      <a class="brand" href="#"><span class="brand-mark">↗</span> relay<span class="brand-dot">.</span></a>
-      <div class="workspace"><span class="workspace-icon">R</span><div><strong>Open workspace</strong><small>Community chat</small></div></div>
-      <div class="section-heading">YOUR SPACES <span>04</span></div>
-      <nav class="room-list" id="room-list">
-        <button class="room-link active" data-room="lobby"><b>#</b> lobby</button>
-        <button class="room-link" data-room="technology"><b>#</b> technology</button>
-        <button class="room-link" data-room="project-help"><b>#</b> project-help</button>
-        <button class="room-link" data-room="random"><b>#</b> random</button>
+      <a class="brand" href="#">
+        <span class="brand-mark">↗</span>
+        relay<span class="brand-dot">.</span>
+      </a>
+
+      <div class="workspace">
+        <span class="workspace-icon">R</span>
+        <div>
+          <strong>Open workspace</strong>
+          <small>Community chat</small>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        YOUR SPACES <span>04</span>
+      </div>
+
+      <nav class="room-list" id="room-list" aria-label="Chat rooms">
+        <button class="room-link active" type="button" data-room="lobby">
+          <b>#</b> lobby
+        </button>
+
+        <button class="room-link" type="button" data-room="technology">
+          <b>#</b> technology
+        </button>
+
+        <button class="room-link" type="button" data-room="project-help">
+          <b>#</b> project-help
+        </button>
+
+        <button class="room-link" type="button" data-room="random">
+          <b>#</b> random
+        </button>
       </nav>
-      <div class="sidebar-note"><span>✳</span><div><strong>Good conversations move ideas forward.</strong><p>Drop in, say hello, and build something together.</p></div></div>
-      <div class="profile"><div class="avatar" id="profile-avatar">G</div><div class="profile-copy"><strong id="profile-name">Guest</strong><small><i></i> Local chat member</small></div><button id="change-name" title="Change display name">↻</button></div>
+
+      <div class="sidebar-note">
+        <span>✳</span>
+        <div>
+          <strong>Good conversations move ideas forward.</strong>
+          <p>Drop in, say hello, and build something together.</p>
+        </div>
+      </div>
+
+      <div class="profile">
+        <div class="avatar" id="profile-avatar">G</div>
+
+        <div class="profile-copy">
+          <strong id="profile-name">Guest</strong>
+          <small><i></i> Local chat member</small>
+        </div>
+
+        <button
+          id="change-name"
+          type="button"
+          title="Change display name"
+          aria-label="Change display name"
+        >↻</button>
+      </div>
+
       <p class="privacy">Local demo · no password required</p>
     </aside>
 
+    <!-- Main Conversation Area -->
     <main class="chat-main">
       <header class="topbar">
-        <div><div class="room-title"><span>#</span><h2 id="room-title">lobby</h2><b>OPEN ROOM</b></div><p id="room-description">A friendly place to start a conversation.</p></div>
-        <div class="connection" id="connection"><i></i><span>Connecting</span></div>
-      </header>
-      <div class="announcement" id="announcement"><span>✳</span><div><strong>Make yourself at home.</strong><small>Be kind, stay curious, and leave room for every voice.</small></div><button id="dismiss-announcement" aria-label="Dismiss announcement">×</button></div>
-      <section class="messages-panel">
-        <div class="divider"><span></span><small>THE CONVERSATION</small><span></span></div>
-        <div class="messages" id="messages" aria-live="polite">
-          <div class="welcome" id="welcome"><div class="welcome-icon">#</div><p class="eyebrow">YOU FOUND YOUR PEOPLE</p><h1>Every great idea<br>starts with <em>hello.</em></h1><p>This room is a blank page. Start the conversation — your message appears instantly for everyone here.</p><button id="say-hello">Say hello <span>↗</span></button></div>
+        <div>
+          <div class="room-title">
+            <span>#</span>
+            <h2 id="room-title">lobby</h2>
+            <b>OPEN ROOM</b>
+          </div>
+
+          <p id="room-description">
+            A friendly place to start a conversation.
+          </p>
         </div>
-        <div class="typing" id="typing" hidden><span class="dots"><i></i><i></i><i></i></span><span id="typing-text">Someone is typing</span></div>
+
+        <div class="connection" id="connection">
+          <i></i>
+          <span>Not connected</span>
+        </div>
+      </header>
+
+      <!-- Announcement -->
+      <div class="announcement" id="announcement">
+        <span>✳</span>
+
+        <div>
+          <strong>Make yourself at home.</strong>
+          <small>
+            Be kind, stay curious, and leave room for every voice.
+          </small>
+        </div>
+
+        <button
+          id="dismiss-announcement"
+          type="button"
+          aria-label="Dismiss announcement"
+        >×</button>
+      </div>
+
+      <!-- Messages -->
+      <section class="messages-panel" aria-label="Conversation">
+        <div class="divider">
+          <span></span>
+          <small>THE CONVERSATION</small>
+          <span></span>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <div class="welcome-icon">#</div>
+
+            <p class="eyebrow">YOU FOUND YOUR PEOPLE</p>
+
+            <h1>Every great idea<br>starts with <em>hello.</em></h1>
+
+            <p>
+              This room is a blank page. Start the conversation —
+              your message appears instantly for everyone here.
+            </p>
+
+            <button id="say-hello" type="button">
+              Say hello <span>↗</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="typing" id="typing" hidden>
+          <span class="dots">
+            <i></i><i></i><i></i>
+          </span>
+          <span id="typing-text">Someone is typing</span>
+        </div>
       </section>
+
+      <!-- Message Composer -->
       <footer class="composer-wrap">
         <form class="composer" id="message-form">
-          <button class="plus" type="button" id="message-tip" title="Message tip">+</button>
-          <textarea id="message-input" maxlength="1000" rows="1" placeholder="Message #lobby…" aria-label="Write a message"></textarea>
-          <div class="composer-actions"><span id="char-count">0 / 1000</span><button id="send-button" type="submit" disabled aria-label="Send message">➤</button></div>
+          <button
+            class="plus"
+            type="button"
+            id="message-tip"
+            title="Message tip"
+            aria-label="Message tip"
+          >+</button>
+
+          <textarea
+            id="message-input"
+            name="message"
+            maxlength="1000"
+            rows="1"
+            placeholder="Message #lobby…"
+            aria-label="Write a message"
+          ></textarea>
+
+          <div class="composer-actions">
+            <span id="char-count">0 / 1000</span>
+
+            <button
+              id="send-button"
+              type="submit"
+              disabled
+              aria-label="Send message"
+            >➤</button>
+          </div>
         </form>
-        <div class="composer-foot"><span><b>Enter</b> to send · <b>Shift + Enter</b> for a new line</span><span>Messages are shared with everyone in this room.</span></div>
+
+        <div class="composer-foot">
+          <span>
+            <b>Enter</b> to send · <b>Shift + Enter</b> for a new line
+          </span>
+          <span>Messages are shared with everyone in this room.</span>
+        </div>
+
         <p class="status-message" id="status-message" role="status"></p>
       </footer>
     </main>
 
+    <!-- Right Sidebar -->
     <aside class="details">
       <div class="details-heading">IN THIS SPACE</div>
-      <section class="people-card"><p class="eyebrow">COMMUNITY</p><h3>People around <span id="people-count">0</span></h3><p class="muted">Members active right now</p><div id="people-list" class="people-list"><p class="empty-people">You're early. Others will appear here when they join.</p></div></section>
-      <section class="about"><div class="about-icon">#</div><h3 id="about-title">lobby</h3><p id="about-copy">A friendly place to start a conversation. Introduce yourself, share what you're working on, or just say hi.</p><hr><p>◷ &nbsp; Messages stay in this room</p><p>↗ &nbsp; Updates arrive in real time</p></section>
-      <section class="sync-card"><div class="sync-art">↗</div><p class="eyebrow">IN SYNC</p><h3>A little less waiting.<br>A lot more connecting.</h3><p>Native WebSocket updates, persistent history, and no refresh button needed.</p><small><i></i> WEBSOCKET CONNECTION</small></section>
-      <footer class="details-foot">RELAY CHAT · MADE FOR GOOD CONVERSATIONS</footer>
+
+      <section class="people-card">
+        <p class="eyebrow">COMMUNITY</p>
+
+        <h3>
+          People around <span id="people-count">0</span>
+        </h3>
+
+        <p class="muted">Members active right now</p>
+
+        <div id="people-list" class="people-list">
+          <p class="empty-people">
+            You're early. Others will appear here when they join.
+          </p>
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="about-icon">#</div>
+
+        <h3 id="about-title">lobby</h3>
+
+        <p id="about-copy">
+          A friendly place to start a conversation.
+          Introduce yourself, share what you're working on, or just say hi.
+        </p>
+
+        <hr>
+
+        <p>◷ &nbsp; Messages stay in this room</p>
+        <p>↗ &nbsp; Updates arrive in real time</p>
+      </section>
+
+      <section class="sync-card">
+        <div class="sync-art">↗</div>
+
+        <p class="eyebrow">IN SYNC</p>
+
+        <h3>
+          A little less waiting.<br>
+          A lot more connecting.
+        </h3>
+
+        <p>
+          Native WebSocket updates, persistent history,
+          and no refresh button needed.
+        </p>
+
+        <small><i></i> WEBSOCKET CONNECTION</small>
+      </section>
+
+      <footer class="details-foot">
+        RELAY CHAT · MADE FOR GOOD CONVERSATIONS
+      </footer>
     </aside>
   </div>
-  <div class="toast" id="toast"></div>
+
+  <!-- Toast Notifications -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Fallback for the welcome form -->
+  <script>
+    (() => {
+      const form = document.getElementById("join-form");
+      const nameInput = document.getElementById("display-name");
+      const overlay = document.getElementById("login-overlay");
+      const error = document.getElementById("join-error");
+
+      if (!form || !nameInput || !overlay) return;
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const name = nameInput.value.trim().replace(/\s+/g, " ");
+
+        if (!name) {
+          error.textContent = "Please enter your display name.";
+          error.style.display = "block";
+          nameInput.focus();
+          return;
+        }
+
+        if (name.length > 24) {
+          error.textContent = "Your display name must be 24 characters or fewer.";
+          error.style.display = "block";
+          return;
+        }
+
+        error.style.display = "none";
+
+        /*
+          app.js also handles this form submission.
+          This fallback ensures the overlay hides if its handler
+          has not already done so.
+        */
+        window.setTimeout(() => {
+          if (!overlay.hidden) {
+            overlay.hidden = true;
+          }
+        }, 100);
+      });
+
+      nameInput.addEventListener("input", () => {
+        error.style.display = "none";
+      });
+    })();
+  </script>
 </body>
 </html>
