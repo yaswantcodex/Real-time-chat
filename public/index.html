@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f1">
+  <title>Relay — Real-time chat</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-card">
+      <div class="brand"><span class="brand-mark">↗</span> relay<span class="brand-dot">.</span></div>
+      <p class="eyebrow">BETTER TOGETHER, IN REAL TIME</p>
+      <h1>Good ideas travel <em>faster.</em></h1>
+      <p class="muted">Choose a display name to enter your shared chat workspace.</p>
+      <form id="join-form">
+        <label for="display-name">DISPLAY NAME</label>
+        <input id="display-name" maxlength="24" placeholder="e.g. Yaswant" required autocomplete="nickname">
+        <button class="primary" type="submit">Enter workspace <span>↗</span></button>
+      </form>
+      <small>No account needed for this local demo. Anyone on this app can see room messages.</small>
+    </div>
+  </div>
+
+  <div class="app-frame">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark">↗</span> relay<span class="brand-dot">.</span></a>
+      <div class="workspace"><span class="workspace-icon">R</span><div><strong>Open workspace</strong><small>Community chat</small></div></div>
+      <div class="section-heading">YOUR SPACES <span>04</span></div>
+      <nav class="room-list" id="room-list">
+        <button class="room-link active" data-room="lobby"><b>#</b> lobby</button>
+        <button class="room-link" data-room="technology"><b>#</b> technology</button>
+        <button class="room-link" data-room="project-help"><b>#</b> project-help</button>
+        <button class="room-link" data-room="random"><b>#</b> random</button>
+      </nav>
+      <div class="sidebar-note"><span>✳</span><div><strong>Good conversations move ideas forward.</strong><p>Drop in, say hello, and build something together.</p></div></div>
+      <div class="profile"><div class="avatar" id="profile-avatar">G</div><div class="profile-copy"><strong id="profile-name">Guest</strong><small><i></i> Local chat member</small></div><button id="change-name" title="Change display name">↻</button></div>
+      <p class="privacy">Local demo · no password required</p>
+    </aside>
+
+    <main class="chat-main">
+      <header class="topbar">
+        <div><div class="room-title"><span>#</span><h2 id="room-title">lobby</h2><b>OPEN ROOM</b></div><p id="room-description">A friendly place to start a conversation.</p></div>
+        <div class="connection" id="connection"><i></i><span>Connecting</span></div>
+      </header>
+      <div class="announcement" id="announcement"><span>✳</span><div><strong>Make yourself at home.</strong><small>Be kind, stay curious, and leave room for every voice.</small></div><button id="dismiss-announcement" aria-label="Dismiss announcement">×</button></div>
+      <section class="messages-panel">
+        <div class="divider"><span></span><small>THE CONVERSATION</small><span></span></div>
+        <div class="messages" id="messages" aria-live="polite">
+          <div class="welcome" id="welcome"><div class="welcome-icon">#</div><p class="eyebrow">YOU FOUND YOUR PEOPLE</p><h1>Every great idea<br>starts with <em>hello.</em></h1><p>This room is a blank page. Start the conversation — your message appears instantly for everyone here.</p><button id="say-hello">Say hello <span>↗</span></button></div>
+        </div>
+        <div class="typing" id="typing" hidden><span class="dots"><i></i><i></i><i></i></span><span id="typing-text">Someone is typing</span></div>
+      </section>
+      <footer class="composer-wrap">
+        <form class="composer" id="message-form">
+          <button class="plus" type="button" id="message-tip" title="Message tip">+</button>
+          <textarea id="message-input" maxlength="1000" rows="1" placeholder="Message #lobby…" aria-label="Write a message"></textarea>
+          <div class="composer-actions"><span id="char-count">0 / 1000</span><button id="send-button" type="submit" disabled aria-label="Send message">➤</button></div>
+        </form>
+        <div class="composer-foot"><span><b>Enter</b> to send · <b>Shift + Enter</b> for a new line</span><span>Messages are shared with everyone in this room.</span></div>
+        <p class="status-message" id="status-message" role="status"></p>
+      </footer>
+    </main>
+
+    <aside class="details">
+      <div class="details-heading">IN THIS SPACE</div>
+      <section class="people-card"><p class="eyebrow">COMMUNITY</p><h3>People around <span id="people-count">0</span></h3><p class="muted">Members active right now</p><div id="people-list" class="people-list"><p class="empty-people">You're early. Others will appear here when they join.</p></div></section>
+      <section class="about"><div class="about-icon">#</div><h3 id="about-title">lobby</h3><p id="about-copy">A friendly place to start a conversation. Introduce yourself, share what you're working on, or just say hi.</p><hr><p>◷ &nbsp; Messages stay in this room</p><p>↗ &nbsp; Updates arrive in real time</p></section>
+      <section class="sync-card"><div class="sync-art">↗</div><p class="eyebrow">IN SYNC</p><h3>A little less waiting.<br>A lot more connecting.</h3><p>Native WebSocket updates, persistent history, and no refresh button needed.</p><small><i></i> WEBSOCKET CONNECTION</small></section>
+      <footer class="details-foot">RELAY CHAT · MADE FOR GOOD CONVERSATIONS</footer>
+    </aside>
+  </div>
+  <div class="toast" id="toast"></div>
+</body>
+</html>
